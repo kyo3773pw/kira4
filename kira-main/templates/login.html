@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login con Verificación Facial</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style-login.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
+    <style>
+        .admin-button {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            padding: 8px 16px;
+            background-color: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9em;
+        }
+
+        .admin-button:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .flash-messages {
+            color: #ff3333;
+            margin: 10px 0;
+            text-align: center;
+            display: none;
+        }
+        #input_video, #output_canvas {
+            width: 640px;
+            height: 480px;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        .face-recognition {
+            position: relative;
+            width: 640px;
+            height: 480px;
+        } 
+    </style>
+    <audio id="errorSound" src="{{ url_for('static', filename='sounds/error.mp3') }}" preload="auto"></audio>
+</head>
+<body>
+    <div class="container">
+        <div class="login-box">
+            <!-- Botón de administrador -->
+            <a href="{{ url_for('admin_login') }}" class="admin-button">Acceso Admin</a>
+
+            <!-- Sección de reconocimiento facial -->
+            <div class="face-recognition" id="faceRecognitionSection">
+                <video id="input_video" autoplay></video>
+                <canvas id="output_canvas"></canvas>
+                <div class="separator-line"></div>
+            </div>
+
+            <!-- Formulario de login -->
+            <div class="login-form">
+                <h2>Inicio de Sesión</h2>
+                <div class="input-box">
+                    <label>
+                        <span class="icon">👤</span>
+                        Nombre de usuario
+                    </label>
+                    <input type="text" id="username" name="username" required>
+                </div>
+                <div class="input-box">
+                    <label>
+                        <span class="icon">🔒</span>
+                        Contraseña
+                    </label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+                <div class="options">
+                    <a href="#" class="forgot-password">Olvidé mi contraseña</a>
+                </div>
+                <button type="button" onclick="startFaceVerification()">Iniciar Sesión</button>
+                <!-- <button id="capture" style="margin-top: 20px;">Verificar Identidad</button>-->
+                <div id="errorMessage" class="flash-messages"></div>
+                <div id="message" class="flash-messages"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentFaceMesh = null;
+        const videoElement = document.getElementById('input_video');
+        const canvasElement = document.getElementById('output_canvas');
+        const canvasCtx = canvasElement.getContext('2d');
+        // const captureButton = document.getElementById('capture');
+        const messageDiv = document.getElementById('message');
+        const errorMessageDiv = document.getElementById('errorMessage');
+        const faceRecognitionSection = document.getElementById('faceRecognitionSection');
+
+        function startFaceVerification() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            fetch('{{ url_for("login") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    if (data.require_facial) {
+                        navigator.mediaDevices.getUserMedia({ video: true })
+                            .then(initializeFaceMesh)
+                            .catch(error => {
+                                console.error('Error accessing camera:', error);
+                                messageDiv.textContent = 'Permiso de cámara denegado. Por favor, conceda el permiso e intente de nuevo.';
+                                messageDiv.style.display = 'block';
+                                const errorSound = document.getElementById('errorSound');
+                                errorSound.play();
+                            });
+                    } else {
+                        window.location.href = '/';
+                    }
+                } else {
+                    // Reproducir sonido de error
+                    const errorSound = document.getElementById('errorSound');
+                    errorSound.play();
+                    
+                    // Mostrar mensaje de error
+                    errorMessageDiv.textContent = data.message;
+                    errorMessageDiv.style.display = 'block';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                errorMessageDiv.textContent = 'Error en el proceso de inicio de sesión.';
+                errorMessageDiv.style.display = 'block';
+                
+                // Reproducir sonido de error también en caso de error de red
+                const errorSound = document.getElementById('errorSound');
+                errorSound.play();
+            });
+        }
+
+        function initializeFaceMesh() {
+            const faceMesh = new FaceMesh({
+                locateFile: (file) => {
+                    return `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`;
+                }
+            });
+
+            faceMesh.setOptions({
+                maxNumFaces: 1,
+                refineLandmarks: true,
+                minDetectionConfidence: 0.5,
+                minTrackingConfidence: 0.5
+            });
+
+            faceMesh.onResults(onResults);
+
+            videoElement.width = 640;
+            videoElement.height = 480;
+            canvasElement.width = 640;
+            canvasElement.height = 480;
+
+            const camera = new Camera(videoElement, {
+                onFrame: async () => {
+                    await faceMesh.send({image: videoElement});
+                },
+                width: 640,
+                height: 480
+            });
+
+            camera.start();
+            startAutoVerification();
+    }
+
+    // Verificación automática
+let verificationAttempts = 0;
+let verificationTimer = null;
+
+function startAutoVerification() {
+    verificationAttempts = 0;
+    verificationTimer = setInterval(() => {
+        if (currentFaceMesh) {
+            verifyFace();
+        } else {
+            verificationAttempts++;
+            if (verificationAttempts >= 15) { // 2 segundos 
+                const errorSound = document.getElementById('errorSound');
+                errorSound.play();
+                messageDiv.textContent = "No se detectó el rostro. Por favor, posiciónese frente a la cámara.";
+                messageDiv.style.display = 'block';
+            }
+        }
+    }, 100);
+}
+
+function verifyFace() {
+    if (!currentFaceMesh) return;
+
+    const username = document.getElementById('username').value;
+    const meshData = Array.from(currentFaceMesh).map(point => ({
+        x: point.x,
+        y: point.y,
+        z: point.z
+    }));
+
+    fetch('{{ url_for("facial_verification") }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            username: username,
+            captured_mesh: JSON.stringify(meshData)
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            clearInterval(verificationTimer);
+            messageDiv.textContent = "Verificación exitosa. Redirigiendo...";
+            messageDiv.style.display = 'block';
+            setTimeout(() => {
+                window.location.href = data.redirect;
+            }, 1000);
+        } else {
+            const errorSound = document.getElementById('errorSound');
+            errorSound.play();
+            messageDiv.textContent = "Verificación facial fallida. Por favor, intente de nuevo.";
+            messageDiv.style.display = 'block';
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        clearInterval(verificationTimer);
+        messageDiv.textContent = 'Error de conexión. Por favor, intente más tarde.';
+        messageDiv.style.display = 'block';
+        const errorSound = document.getElementById('errorSound');
+        errorSound.play();
+    });
+}
+
+        function onResults(results) {
+            canvasCtx.save();
+            canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+            
+            if (results.multiFaceLandmarks) {
+                for (const landmarks of results.multiFaceLandmarks) {
+                    currentFaceMesh = landmarks;
+                    drawConnectors(canvasCtx, landmarks, FACEMESH_TESSELATION, 
+                        {color: '#C0C0C070', lineWidth: 1});
+                    drawConnectors(canvasCtx, landmarks, FACEMESH_RIGHT_EYE, 
+                        {color: '#FF3030'});
+                    drawConnectors(canvasCtx, landmarks, FACEMESH_LEFT_EYE, 
+                        {color: '#30FF30'});
+                }
+            }
+            canvasCtx.restore();
+        }
+
+        
+    </script>
+</body>
+</html>

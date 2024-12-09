@@ -1,0 +1,243 @@
+/* Estilo general */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Arial', sans-serif;
+    display: flex;
+    height: 100vh;
+    background: url('../images/background.jpg') no-repeat center center fixed;
+    background-size: cover;
+    color: #ffffff;
+    flex-direction: column; /* Cambiamos para asegurar que los elementos se apilen correctamente */
+}
+
+/* Barra superior */
+.top-bar {
+    width: 78%;
+    background: rgba(0, 0, 0, 0.6);
+    padding: 15px;
+    text-align: center; /* Centra el texto */
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+    position: fixed; /* La barra superior queda fija en la parte superior */
+    top: 0;
+    left: 22%;
+    z-index: 1000;
+}
+
+.top-bar h2 {
+    font-size: 24px;
+    margin: 0;
+}
+
+/* Barra lateral */
+.sidebar {
+    width: 250px;
+    height: calc(100% - 60px); /* Ajusta el tamaño para descontar la altura de la barra superior */
+    background: linear-gradient(135deg, #046574, #10193a);
+    padding: 20px;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+    position: fixed; /* Asegura que esté fija al lado izquierdo */
+    /* top: 60px; Comienza justo debajo de la barra superior */
+    left: 0;
+    z-index: 999;
+}
+
+.user-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.user-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background-color: #ffffff;
+    margin-bottom: 10px;
+}
+
+.user-name {
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.menu {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.menu li {
+    margin-bottom: 15px;
+}
+
+.menu a {
+    color: #ffffff;
+    text-decoration: none;
+    font-size: 18px;
+    transition: color 0.3s ease;
+}
+
+.menu a:hover {
+    color: #ccc;
+}
+
+/* Contenido principal */
+.main-content {
+    margin-left: 250px; /* Desplaza el contenido principal a la derecha de la barra lateral */
+    margin-top: 60px; /* Ajusta para no superponerse con la barra superior */
+    padding: 20px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.content-area {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100%; /* Asegura que el contenedor tenga altura completa */
+}
+.content-area table {
+    width: 80%;
+    margin-right: 5px;
+    border-collapse: separate;
+    border-spacing: 0;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.content-area thead {
+    background-color: rgba(4, 101, 116, 0.7); /* Color similar al degradado de la barra lateral */
+}
+
+.content-area th {
+    padding: 15px;
+    text-align: left;
+    color: #ffffff;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.content-area tbody tr {
+    transition: background-color 0.3s ease;
+}
+
+.content-area tbody tr:nth-child(even) {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.content-area tbody tr:hover {
+    background-color: rgba(255, 255, 255, 0.15);
+}
+
+.content-area td {
+    padding: 15px;
+    color: #ffffff;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+.user-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    overflow: hidden;
+    margin-bottom: 10px;
+}
+
+.avatar-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+/* Contenedor del formulario minimalista */
+.minimal-form {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+}
+
+/* Contenedor del formulario */
+.form-minimal {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    background-color: rgba(255, 255, 255, 0.1);
+    padding: 15px 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    max-width: 400px;
+    width: 100%;
+}
+
+/* Estilo de la etiqueta */
+.form-label-minimal {
+    font-size: 14px;
+    font-weight: bold;
+    color: #fff;
+    margin-bottom: 10px;
+}
+
+/* Contenedor del input y botón */
+.input-container {
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+/* Estilo del campo de entrada */
+.form-input-minimal {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 4px;
+    background-color: transparent;
+    color: #fff;
+    font-size: 14px;
+    margin-right: 10px;
+    outline: none;
+    transition: border-color 0.3s ease;
+}
+
+/* Efecto al enfocar el campo */
+.form-input-minimal:focus {
+    border-color: #00bfff;
+    box-shadow: 0 0 5px rgba(0, 191, 255, 0.5);
+}
+
+/* Estilo del botón */
+.form-button-minimal {
+    background-color: #00bfff;
+    color: #fff;
+    font-size: 14px;
+    font-weight: bold;
+    border: none;
+    border-radius: 4px;
+    padding: 10px 15px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+/* Efectos hover y activo en el botón */
+.form-button-minimal:hover {
+    background-color: #007acc;
+}
+
+.form-button-minimal:active {
+    transform: scale(0.98);
+}
+
+/* Estilo responsive */
+@media (max-width: 480px) {
+    .form-minimal {
+        padding: 10px 15px;
+    }
+    .form-button-minimal {
+        padding: 8px 12px;
+    }
+}

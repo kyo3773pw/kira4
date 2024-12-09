@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Historial de Inicios de Sesión</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style-history.css') }}">
+</head>
+
+<body>
+    <!-- Barra superior -->
+    <div class="top-bar">
+        <h2>Sistema de Reconocimiento Facial</h2>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="user-info">
+            <div class="user-avatar">
+                <img src="../static/images/admin2.png" alt="{{ current_user.username }}'s avatar" class="avatar-image">
+            </div>
+            <h2 class="user-name">{{ current_user.username }}</h2>
+        </div>
+        <ul class="menu">
+            <li><a href="/">Inicio</a></li>
+            <li><a href="{{  url_for('view_global_login_statistics')  }}" class="menu-item">reporte</a></li>
+            <li><a href="{{ url_for('logout') }}" class="menu-item">Cerrar Sesión</a></li>
+        </ul>
+    </div>
+
+    <!-- Contenido principal -->
+    <div class="main-content">
+        <div class="content-area">
+            <h2 class="title">Historial de Inicios de Sesión</h2>
+
+            <!-- Formulario para ingresar el nombre de usuario -->
+            <div class="minimal-form">
+                <form action="{{ url_for('admin_user_login_history') }}" method="get" class="form-minimal">
+                    <label for="username" class="form-label-minimal">Ingrese el Nombre de Usuario:</label>
+                    <div class="input-container">
+                        <input type="text" id="username" name="username" placeholder="Nombre de Usuario"
+                            class="form-input-minimal" required>
+                        <button type="submit" class="form-button-minimal">Ver Reporte</button>
+                    </div>
+                </form>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Usuario</th>
+                        <th>Fecha y Hora</th>
+                        <th>Dirección IP</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for record in login_records %}
+                    <tr>
+                        <td>{{ record.user.username }}</td>
+                        <td>{{ record.login_datetime.strftime('%d/%m/%Y %H:%M:%S') }}</td>
+                        <td>{{ record.ip_address }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            {% if not login_records %}
+            <div class="no-records">No hay registros de inicio de sesión disponibles.</div>
+            {% endif %}
+        </div>
+    </div>
+</body>
+
+</html>

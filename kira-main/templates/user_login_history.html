@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+
+{% block title %}Historial de Inicios de Sesión{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-2xl font-bold mb-6">Historial de Inicios de Sesión - Panel Administrativo</h1>
+    
+    <!-- Resumen -->
+    <div class="bg-white shadow rounded-lg p-6 mb-6">
+        <h2 class="text-xl font-semibold mb-4">Resumen de Actividad</h2>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div>
+                <p class="text-gray-600">Usuario:</p>
+                <p class="font-medium">{{ summary.user_info.username }}</p>
+            </div>
+            <div>
+                <p class="text-gray-600">Total de inicios:</p>
+                <p class="font-medium">{{ summary.total_logins }}</p>
+            </div>
+            <div>
+                <p class="text-gray-600">Promedio diario:</p>
+                <p class="font-medium">{{ summary.daily_average }}</p>
+            </div>
+            <div>
+                <p class="text-gray-600">Día más activo:</p>
+                <p class="font-medium">{{ summary.most_active_day }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Gráficos -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+        <div class="bg-white shadow rounded-lg p-6">
+            <h3 class="text-lg font-semibold mb-4">Distribución por Hora</h3>
+            <canvas id="hourlyChart" class="h-64 w-full"></canvas>
+        </div>
+        <div class="bg-white shadow rounded-lg p-6">
+            <h3 class="text-lg font-semibold mb-4">Actividad Semanal</h3>
+            <canvas id="weeklyChart" class="h-64 w-full"></canvas>
+        </div>
+        <div class="bg-white shadow rounded-lg p-6 md:col-span-2">
+            <h3 class="text-lg font-semibold mb-4">Tendencia Mensual</h3>
+            <canvas id="monthlyChart" class="h-64 w-full"></canvas>
+        </div>
+    </div>
+
+    <!-- Tabla de registros -->
+    <div class="bg-white shadow rounded-lg overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h3 class="text-lg font-semibold">Registros Detallados</h3>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha y Hora</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Dirección IP</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Navegador</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for record in login_records %}
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ record.login_datetime.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ record.ip_address }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ record.user_agent }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Scripts -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const chartData = JSON.parse(`{{ chart_data|tojson|safe }}`);
+    
+    // Configuración común para los gráficos
+    const commonOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                display: false
+            }
+        }
+    };
+
+    // Gráfico de distribución por hora
+    new Chart(document.getElementById('hourlyChart').getContext('2d'), {
+        type: 'bar',
+        data: {
+            labels: chartData.hourly_distribution.labels,
+            datasets: [{
+                label: 'Inicios de sesión',
+                data: chartData.hourly_distribution.data,
+                backgroundColor: chartData.hourly_distribution.backgroundColor,
+                borderColor: chartData.hourly_distribution.borderColor,
+                borderWidth: 1
+            }]
+        },
+        options: commonOptions
+    });
+    
+    // Gráfico de distribución semanal
+    new Chart(document.getElementById('weeklyChart').getContext('2d'), {
+        type: 'bar',
+        data: {
+            labels: chartData.weekly_distribution.labels,
+            datasets: [{
+                label: 'Inicios de sesión',
+                data: chartData.weekly_distribution.data,
+                backgroundColor: chartData.weekly_distribution.backgroundColor,
+                borderColor: chartData.weekly_distribution.borderColor,
+                borderWidth: 1
+            }]
+        },
+        options: commonOptions
+    });
+    
+    // Gráfico de tendencia mensual
+    new Chart(document.getElementById('monthlyChart').getContext('2d'), {
+        type: 'line',
+        data: {
+            labels: chartData.monthly_trend.labels,
+            datasets: [{
+                label: 'Inicios de sesión',
+                data: chartData.monthly_trend.data,
+                borderColor: chartData.monthly_trend.borderColor,
+                fill: chartData.monthly_trend.fill,
+                tension: 0.1
+            }]
+        },
+        options: commonOptions
+    });
+});
+</script>
+{% endblock %}

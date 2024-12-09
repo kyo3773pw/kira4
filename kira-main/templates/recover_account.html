@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recuperar Cuenta</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style-login.css') }}">
+    <style>
+        .recovery-form {
+            max-width: 400px;
+            min-width: 350px;
+            margin: 20px auto;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+            
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+            
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: white;
+            
+        }
+
+        .form-group input {
+            width: 90%;
+            padding: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            
+        }
+
+        #security-question {
+            margin: 10px 0;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 4px;
+            color: white;
+            
+        }
+
+        .error-message {
+            color: #ff4444;
+            margin-bottom: 10px;
+            padding: 10px;
+            background: rgba(255, 0, 0, 0.1);
+            border-radius: 4px;
+        }
+
+        .verification-step {
+            margin-bottom: 20px;
+            padding: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+            
+        }
+        /* Contenedor para los botones */
+        .button-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            align-items: center;
+            margin-top: 20px;
+        }
+
+        /* Estilo principal para ambos botones */
+        .button-primary, .back-link {
+            width: 80%;
+            padding: 12px 25px;
+            border-radius: 25px;
+            font-size: 16px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            text-decoration: none;
+            border: none;
+        }
+
+        /* Estilo para el botón principal (Verificar Identidad) */
+        .button-primary {
+            background: linear-gradient(45deg, #2196F3, #21CBF3);
+            color: white;
+            box-shadow: 0 4px 15px rgba(33, 150, 243, 0.3);
+        }
+
+        .button-primary:hover {
+            background: linear-gradient(45deg, #21CBF3, #2196F3);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(33, 150, 243, 0.4);
+        }
+
+        /* Estilo para el botón de volver */
+        .back-link {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(5px);
+        }
+
+        .back-link:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(255, 255, 255, 0.2);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="recovery-form">
+            <h2>Recuperar Cuenta</h2>
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="error-message">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            
+            <form id="recoveryForm" method="POST">
+                <div class="verification-step">
+                    <h3>Paso 1: Identificación</h3>
+                    <div class="form-group">
+                        <label for="username">Nombre de Usuario:</label>
+                        <input type="text" id="username" name="username" required onchange="getSecurityQuestion()">
+                    </div>
+                </div>
+
+                <div class="verification-step">
+                    <h3>Paso 2: Verificación</h3>
+                    <div class="form-group">
+                        <label for="phone_number">Número de Celular:</label>
+                        <input type="tel" id="phone_number" name="phone_number" 
+                               pattern="[0-9]{9}" placeholder="987654321" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Pregunta de Seguridad:</label>
+                        <div id="security-question">Ingrese su nombre de usuario primero</div>
+                        <label for="respuesta">Respuesta:</label>
+                        <input type="text" id="respuesta" name="respuesta" required>
+                    </div>
+                </div>
+
+                <div class="button-container">
+                    <button type="submit" class="button-primary">Verificar Identidad</button>
+                    <a href="{{ url_for('login') }}" class="back-link">Volver al Login</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function getSecurityQuestion() {
+            const username = document.getElementById('username').value;
+            if (username) {
+                fetch(`/get_security_question/${username}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        const questionDiv = document.getElementById('security-question');
+                        if (data.question) {
+                            questionDiv.textContent = data.question;
+                        } else {
+                            questionDiv.textContent = 'Usuario no encontrado';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        document.getElementById('security-question').textContent = 'Error al cargar la pregunta';
+                    });
+            }
+        }
+    </script>
+</body>
+</html>

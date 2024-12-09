@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style-createUser.css') }}">
+    <title>Agregar Usuario</title>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js" crossorigin="anonymous"></script>
+    <style>
+        .face-recognition {
+            position: relative;
+            width: 320px;
+            height: 240px;
+        }
+
+        #input_video,
+        #output_canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        #output_canvas {
+            z-index: 1;
+        }
+
+        .blink-counter {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 16px;
+            z-index: 2;
+        }
+
+        .blink-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-left: 5px;
+            background-color: #666;
+        }
+
+        .blink-indicator.active {
+            background-color: #00ff00;
+        }
+
+        .instruction {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 14px;
+            z-index: 2;
+            white-space: nowrap;
+        }
+        .form-group select {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        margin-bottom: 10px;
+        font-size: 14px;
+    }
+
+    .form-group input[type="tel"] {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 14px;
+    }
+
+    .form-group input[type="tel"]:invalid {
+        border-color: #ff3333;
+    }
+
+    .form-group input[type="tel"]:valid {
+        border-color: #33cc33;
+    }
+    /* Estilo para el placeholder del teléfono */
+    .form-group input[type="tel"]::placeholder {
+        color: #999;
+        font-size: 12px;
+    }
+    </style>
+</head>
+
+<body>
+    <div class="sidebar">
+        <div class="user-info">
+            <div class="user-avatar"></div>
+            <h2 class="user-name">{{ current_user.username }}</h2>
+        </div>
+        <ul class="menu">
+            <li><a href="{{ url_for('index') }}">Inicio</a></li>
+            <li><a href="#">Configuración</a></li>
+            <li><a href="#">Alarmas</a></li>
+            <li><a href="#">Notificaciones</a></li>
+            <li><a href="{{ url_for('logout') }}">Cerrar Sesión</a></li>
+        </ul>
+    </div>
+    <div class="main-content">
+        <div class="top-bar">
+            <button class="menu-toggle">☰</button>
+            <h2 class="user-name">Agregar Nuevo Usuario</h2>
+        </div>
+        <div class="content-area">
+            <h2>Crear Usuario</h2>
+            <form action="{{ url_for('create_user') }}" method="POST" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label for="username">Nombre de Usuario:</label>
+                    <input type="text" id="username" name="username" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Contraseña:</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="phone">Número de Celular:</label>
+                    <input type="tel" id="phone" name="phone" 
+                           pattern="[0-9]{9}" 
+                           placeholder="Ejemplo: 987654321" 
+                           required>
+                </div>
+
+                <div class="form-group">
+                    <label for="security_question">Pregunta de Seguridad:</label>
+                    <select id="security_question" name="num_preg" required>
+                        <option value="">Seleccione una pregunta</option>
+                        <option value="1">¿Cuál es el nombre de tu primera mascota?</option>
+                        <option value="2">¿En qué ciudad naciste?</option>
+                        <option value="3">¿Cuál es el nombre de tu madre?</option>
+                        <option value="4">¿Cuál fue tu primer colegio?</option>
+                        <option value="5">¿Cuál es tu comida favorita?</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="security_answer">Respuesta:</label>
+                    <input type="text" id="security_answer" name="respuesta" 
+                    placeholder="Una sola palabra" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="face_capture">Captura tu imagen:</label>
+                    <div class="face-recognition">
+                        <video id="input_video" autoplay></video>
+                        <canvas id="output_canvas"></canvas>
+                        <div class="blink-counter">
+                            Parpadeos: <span id="blink-count">0</span>/3
+                            <div class="blink-indicator" id="indicator1"></div>
+                            <div class="blink-indicator" id="indicator2"></div>
+                            <div class="blink-indicator" id="indicator3"></div>
+                        </div>
+                        <div class="instruction">Parpadea 3 veces para capturar la malla facial</div>
+                    </div>
+                    <input type="hidden" id="profile_image" name="profile_image">
+                </div>
+
+                <div class="form-group">
+                    <label>Imagen Capturada:</label>
+                    <img id="captured_image" src="" alt="Imagen Capturada"
+                        style="display:none; width: 320px; height: 240px;">
+                </div>
+
+                <button type="submit">Crear Usuario</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const videoElement = document.getElementById('input_video');
+        const canvasElement = document.getElementById('output_canvas');
+        const canvasCtx = canvasElement.getContext('2d');
+        const profileImageInput = document.getElementById('profile_image');
+        const capturedImage = document.getElementById('captured_image');
+        const blinkCountDisplay = document.getElementById('blink-count');
+        const indicators = [
+            document.getElementById('indicator1'),
+            document.getElementById('indicator2'),
+            document.getElementById('indicator3')
+        ];
+
+        let currentFaceMeshData = null;
+        let blinkCount = 0;
+        let isBlinking = false;
+        let lastBlinkTime = 0;
+        const BLINK_COOLDOWN = 1000; // Cooldown period between blinks (in milliseconds)
+
+        const faceMesh = new FaceMesh({
+            locateFile: (file) => {
+                return `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`;
+            }
+        });
+
+        faceMesh.setOptions({
+            maxNumFaces: 1,
+            refineLandmarks: true,
+            minDetectionConfidence: 0.5,
+            minTrackingConfidence: 0.5
+        });
+
+        faceMesh.onResults(onResults);
+
+        const camera = new Camera(videoElement, {
+            onFrame: async () => {
+                await faceMesh.send({ image: videoElement });
+            },
+            width: 320,
+            height: 240
+        });
+
+        camera.start();
+
+        function calculateEAR(eye) {
+            // Calculate the Euclidean distance between vertical eye landmarks
+            const height1 = Math.hypot(eye[1].x - eye[5].x, eye[1].y - eye[5].y);
+            const height2 = Math.hypot(eye[2].x - eye[4].x, eye[2].y - eye[4].y);
+            // Calculate the Euclidean distance between horizontal eye landmarks
+            const width = Math.hypot(eye[0].x - eye[3].x, eye[0].y - eye[3].y);
+            // Calculate EAR
+            return (height1 + height2) / (2.0 * width);
+        }
+
+        function updateBlinkIndicators() {
+            for (let i = 0; i < 3; i++) {
+                indicators[i].classList.toggle('active', i < blinkCount);
+            }
+        }
+
+        function captureMesh() {
+            if (currentFaceMeshData) {
+                const meshJson = JSON.stringify(currentFaceMeshData);
+                profileImageInput.value = meshJson;
+                capturedImage.src = canvasElement.toDataURL('image/png');
+                capturedImage.style.display = 'block';
+                alert('¡Malla facial capturada exitosamente!');
+            }
+        }
+
+        function onResults(results) {
+            canvasCtx.save();
+            canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+
+            if (results.multiFaceLandmarks) {
+                for (const landmarks of results.multiFaceLandmarks) {
+                    // Draw face mesh
+                    drawConnectors(canvasCtx, landmarks, FACEMESH_TESSELATION, { color: '#C0C0C070', lineWidth: 1 });
+                    drawConnectors(canvasCtx, landmarks, FACEMESH_RIGHT_EYE, { color: '#FF3030' });
+                    drawConnectors(canvasCtx, landmarks, FACEMESH_LEFT_EYE, { color: '#30FF30' });
+
+                    // Store current face mesh data
+                    currentFaceMeshData = landmarks.map(point => ({
+                        x: point.x,
+                        y: point.y,
+                        z: point.z
+                    }));
+
+                    // Get eye landmarks
+                    const leftEye = [
+                        landmarks[33], landmarks[160], landmarks[158], landmarks[133],
+                        landmarks[153], landmarks[144]
+                    ];
+                    const rightEye = [
+                        landmarks[362], landmarks[385], landmarks[387], landmarks[263],
+                        landmarks[373], landmarks[380]
+                    ];
+
+                    // Calculate EAR for both eyes
+                    const leftEAR = calculateEAR(leftEye);
+                    const rightEAR = calculateEAR(rightEye);
+                    const avgEAR = (leftEAR + rightEAR) / 2;
+
+                    // Detect blink
+                    const now = Date.now();
+                    if (avgEAR < 0.2 && !isBlinking && (now - lastBlinkTime) > BLINK_COOLDOWN) {
+                        isBlinking = true;
+                        blinkCount++;
+                        blinkCountDisplay.textContent = blinkCount;
+                        updateBlinkIndicators();
+                        lastBlinkTime = now;
+
+                        // Check if we reached 3 blinks
+                        if (blinkCount === 3) {
+                            setTimeout(() => {
+                                captureMesh();
+                                // Reset blink count after capture
+                                blinkCount = 0;
+                                blinkCountDisplay.textContent = blinkCount;
+                                updateBlinkIndicators();
+                            }, 500);
+                        }
+                    } else if (avgEAR > 0.25) {
+                        isBlinking = false;
+                    }
+                }
+            }
+            canvasCtx.restore();
+        }
+    </script>
+</body>
+
+</html>

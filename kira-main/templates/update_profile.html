@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <title>Actualizar Perfil</title>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js" crossorigin="anonymous"></script>
+</head>
+<body>
+    <div class="main-content">
+        <div class="top-bar">
+            <h2 class="user-name">Actualizar Foto de Perfil</h2>
+            <!-- Botón de Cerrar Sesión -->
+            <a href="{{ url_for('logout') }}" class="logout-button">Cerrar Sesión</a>
+        </div>
+        <div class="content-area">
+            <h2>Actualizar Foto de Perfil</h2>
+            <form action="{{ url_for('update_profile') }}" method="POST" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label for="face_capture">Captura tu nueva imagen de perfil:</label>
+                    <div class="face-recognition">
+                        <video id="input_video" width="320" height="240" autoplay></video>
+                        <canvas id="output_canvas" width="320" height="240"></canvas>
+                    </div>
+                    <button type="button" id="capture">Capturar Imagen</button>
+                    <input type="hidden" id="profile_image" name="profile_image">
+                </div>
+
+                <!-- Añadir un elemento de imagen para mostrar la captura -->
+                <div class="form-group">
+                    <label>Imagen Capturada:</label><br>
+                    <img id="captured_image" src="" alt="Imagen Capturada" style="display:none; width: 320px; height: 240px;">
+                </div>
+
+                <button type="submit">Actualizar Foto de Perfil</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const videoElement = document.getElementById('input_video');
+        const canvasElement = document.getElementById('output_canvas');
+        const canvasCtx = canvasElement.getContext('2d');
+        const captureButton = document.getElementById('capture');
+        const profileImageInput = document.getElementById('profile_image');
+        const capturedImage = document.getElementById('captured_image');
+
+        function onResults(results) {
+            canvasCtx.save();
+            canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+            canvasCtx.drawImage(results.image, 0, 0, canvasElement.width, canvasElement.height);
+            if (results.multiFaceLandmarks) {
+                for (const landmarks of results.multiFaceLandmarks) {
+                    drawConnectors(canvasCtx, landmarks, FACEMESH_TESSELATION, {color: '#C0C0C070', lineWidth: 1});
+                    drawConnectors(canvasCtx, landmarks, FACEMESH_RIGHT_EYE, {color: '#FF3030'});
+                    drawConnectors(canvasCtx, landmarks, FACEMESH_RIGHT_EYEBROW, {color: '#FF3030'});
+                    drawConnectors(canvasCtx, landmarks, FACEMESH_LEFT_EYE, {color: '#30FF30'});
+                    drawConnectors(canvasCtx, landmarks, FACEMESH_LEFT_EYEBROW, {color: '#30FF30'});
+                    drawConnectors(canvasCtx, landmarks, FACEMESH_FACE_OVAL, {color: '#E0E0E0'});
+                    drawConnectors(canvasCtx, landmarks, FACEMESH_LIPS, {color: '#E0E0E0'});
+                }
+            }
+            canvasCtx.restore();
+        }
+
+        const faceMesh = new FaceMesh({locateFile: (file) => {
+            return `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`;
+        }});
+        faceMesh.setOptions({
+            maxNumFaces: 1,
+            refineLandmarks: true,
+            minDetectionConfidence: 0.5,
+            minTrackingConfidence: 0.5
+        });
+        faceMesh.onResults(onResults);
+
+        const camera = new Camera(videoElement, {
+            onFrame: async () => {
+                await faceMesh.send({image: videoElement});
+            },
+            width: 320,
+            height: 240
+        });
+        camera.start();
+
+        captureButton.addEventListener('click', function() {
+            const imageData = canvasElement.toDataURL('image/png');
+            profileImageInput.value = imageData;
+            
+            // Mostrar la imagen capturada en el elemento <img>
+            capturedImage.src = imageData;
+            capturedImage.style.display = 'block';  // Hacer visible la imagen
+        });
+    </script>
+
+    <style>
+        .logout-button {
+            display: inline-block;
+            margin-left: auto;
+            background-color: #d9534f;
+            color: white;
+            padding: 8px 12px;
+            text-decoration: none;
+            border-radius: 4px;
+        }
+        .logout-button:hover {
+            background-color: #c9302c;
+        }
+    </style>
+</body>
+</html>

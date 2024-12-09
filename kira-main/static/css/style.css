@@ -1,0 +1,373 @@
+/* Estilo general */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Arial', sans-serif;
+    display: flex;
+    height: 100vh;
+    background: url('../images/background.jpg') no-repeat center center fixed;
+    background-size: cover;
+    color: #ffffff;
+}
+
+/* Barra lateral */
+.sidebar {
+    width: 250px;
+    height: 100%;
+    background: linear-gradient(135deg, #046574, #10193a);
+    padding: 20px;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+}
+
+.user-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.user-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background-color: #ffffff;
+    margin-bottom: 10px;
+}
+
+.user-name {
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.action-buttons button {
+    background-color: rgba(4, 101, 116, 0.7); 
+    border: 2px solid rgba(4, 101, 116, 0.7);
+    color: #ffffff;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 0.9em;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.action-buttons button:hover {
+    background-color: rgba(129, 219, 233, 0.7);
+    color: #ffffff;
+    transform: scale(1.05);
+}
+/* Nuevos estilos para la tabla de usuarios */
+
+.content-area {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100%; /* Asegura que el contenedor tenga altura completa */
+}
+.content-area table {
+    width: 80%;
+    margin-right: 5px;
+    border-collapse: separate;
+    border-spacing: 0;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.content-area thead {
+    background-color: rgba(4, 101, 116, 0.7); /* Color similar al degradado de la barra lateral */
+}
+
+.content-area th {
+    padding: 15px;
+    text-align: left;
+    color: #ffffff;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.content-area tbody tr {
+    transition: background-color 0.3s ease;
+}
+
+.content-area tbody tr:nth-child(even) {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.content-area tbody tr:hover {
+    background-color: rgba(255, 255, 255, 0.15);
+}
+
+.content-area td {
+    padding: 15px;
+    color: #ffffff;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.content-area td button {
+    margin-right: 10px;
+    background-color: transparent;
+    border: 2px solid #ffffff;
+    color: #ffffff;
+    padding: 8px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.content-area td button:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+    transform: scale(1.05);
+}
+
+.content-area td button:first-child {
+    border-color: #4CAF50; /* Verde para editar */
+    color: #4CAF50;
+}
+
+.content-area td button:last-child {
+    border-color: #F44336; /* Rojo para eliminar */
+    color: #F44336;
+}
+
+.content-area td button:first-child:hover {
+    background-color: rgba(76, 175, 80, 0.2);
+}
+
+.content-area td button:last-child:hover {
+    background-color: rgba(244, 67, 54, 0.2);
+}
+.user-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    overflow: hidden;
+    margin-bottom: 10px;
+}
+
+.avatar-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.menu {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.menu li {
+    margin-bottom: 15px;
+}
+
+.menu a {
+    color: #ffffff;
+    text-decoration: none;
+    font-size: 18px;
+    transition: color 0.3s ease;
+}
+
+.menu a:hover {
+    color: #ccc;
+}
+
+/* Contenido principal */
+.main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.top-bar {
+    background: rgba(0, 0, 0, 0.6);
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+}
+
+.top-bar h2 {
+    font-size: 24px;
+    margin: 0;
+}
+
+.menu-toggle {
+    font-size: 24px;
+    background: none;
+    color: #ffffff;
+    border: none;
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+.menu-toggle:hover {
+    color: #ccc;
+}
+
+
+
+.action-buttons button {
+    background-color: rgba(4, 101, 116, 0.7);
+    border: 2px solid rgba(4, 101, 116, 0.7);
+    color: #ffffff;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 0.9em;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.action-buttons button:hover {
+    background-color: rgba(129, 219, 233, 0.7);
+    color: #ffffff;
+    transform: scale(1.05);
+}
+
+/* Nuevos estilos para la tabla de usuarios */
+
+.content-area {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    /* Asegura que el contenedor tenga altura completa */
+}
+
+.content-area table {
+    width: 80%;
+    margin-right: 5px;
+    border-collapse: separate;
+    border-spacing: 0;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.content-area thead {
+    background-color: rgba(4, 101, 116, 0.7);
+    /* Color similar al degradado de la barra lateral */
+}
+
+.content-area th {
+    padding: 15px;
+    text-align: left;
+    color: #ffffff;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.content-area tbody tr {
+    transition: background-color 0.3s ease;
+}
+
+.content-area tbody tr:nth-child(even) {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.content-area tbody tr:hover {
+    background-color: rgba(255, 255, 255, 0.15);
+}
+
+.content-area td {
+    padding: 15px;
+    color: #ffffff;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.content-area td button {
+    margin-right: 10px;
+    background-color: transparent;
+    border: 2px solid #ffffff;
+    color: #ffffff;
+    padding: 8px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.content-area td button:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+    transform: scale(1.05);
+}
+
+.content-area td button:first-child {
+    border-color: #4CAF50;
+    /* Verde para editar */
+    color: #4CAF50;
+}
+
+.content-area td button:last-child {
+    border-color: #F44336;
+    /* Rojo para eliminar */
+    color: #F44336;
+}
+
+.content-area td button:first-child:hover {
+    background-color: rgba(76, 175, 80, 0.2);
+}
+
+.content-area td button:last-child:hover {
+    background-color: rgba(244, 67, 54, 0.2);
+}
+
+/* Estilo para formularios */
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.form-group input[type="text"],
+.form-group input[type="password"],
+.form-group select {
+    width: calc(100% - 20px);
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    background-color: rgba(255, 255, 255, 0.9);
+    color: #10193a;
+}
+
+/* Estilos de botones */
+button[type="submit"],
+button[type="button"] {
+    background-color: #ffffff;
+    color: #10193a;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+button[type="submit"]:hover,
+button[type="button"]:hover {
+    background-color: #e0e0e0;
+    /* Color claro al pasar el mouse */
+}
+
+/* Estilo para el área de captura de imagen */
+.face-recognition {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 20px;
+}
+
+.face-recognition video {
+    border: 2px solid #ffffff;
+    border-radius: 5px;
+    margin-bottom: 10px;
+}

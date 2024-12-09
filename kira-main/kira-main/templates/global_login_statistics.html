@@ -1,0 +1,215 @@
+{% extends "base.html" %}
+
+{% block title %}Estadísticas Globales de Inicio de Sesión{% endblock %}
+
+{% block styles %}
+{{ super() }}
+<style>
+    .stats-card {
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+    }
+    .stats-value {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: #1a56db;
+    }
+    .stats-label {
+        color: #6b7280;
+        font-size: 0.875rem;
+    }
+    .chart-container {
+        position: relative;
+        height: 300px;
+        margin-bottom: 2rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold mb-8">Estadísticas Globales de Inicio de Sesión</h1>
+
+
+    <!-- Resumen de Estadísticas -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <div class="stats-card">
+            <div class="stats-value">{{ stats.global_stats.total_logins }}</div>
+            <div class="stats-label">Total de Inicios de Sesión</div>
+        </div>
+        <div class="stats-card">
+            <div class="stats-value">{{ stats.global_stats.daily_average }}</div>
+            <div class="stats-label">Promedio Diario</div>
+        </div>
+        <div class="stats-card">
+            <div class="stats-value">{{ stats.global_stats.most_active_hour }}</div>
+            <div class="stats-label">Hora Más Activa</div>
+        </div>
+        <div class="stats-card">
+            <div class="stats-value">{{ stats.global_stats.most_active_user }}</div>
+            <div class="stats-label">Usuario Más Activo</div>
+        </div>
+    </div>
+
+    <!-- Gráficos -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        <!-- Distribución por Hora -->
+        <div class="stats-card">
+            <h2 class="text-xl font-semibold mb-4">Distribución por Hora</h2>
+            <div class="chart-container">
+                <canvas id="hourlyChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Distribución Semanal -->
+        <div class="stats-card">
+            <h2 class="text-xl font-semibold mb-4">Distribución Semanal</h2>
+            <div class="chart-container">
+                <canvas id="weeklyChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Tendencia Mensual -->
+        <div class="stats-card">
+            <h2 class="text-xl font-semibold mb-4">Tendencia Mensual</h2>
+            <div class="chart-container">
+                <canvas id="monthlyChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Top Usuarios -->
+        <div class="stats-card">
+            <h2 class="text-xl font-semibold mb-4">Top 10 Usuarios Más Activos</h2>
+            <div class="chart-container">
+                <canvas id="userChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Estadísticas por Usuario -->
+    <div class="stats-card">
+        <h2 class="text-xl font-semibold mb-4">Estadísticas por Usuario</h2>
+        <div class="overflow-x-auto">
+            <table class="min-w-full">
+                <thead>
+                    <tr class="bg-gray-50">
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Usuario</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Logins</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Promedio Diario</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Hora Pico</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">% del Total</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for username, user_stat in stats.user_stats.items() %}
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap">{{ username }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">{{ user_stat.total_logins }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">{{ user_stat.daily_average }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">{{ user_stat.peak_hour }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">{{ user_stat.percentage_of_total }}%</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<!-- Primero, define los datos en un script separado -->
+<script>
+    const chartData = {
+        hourlyDistribution: JSON.parse('{{ stats.global_stats.chart_data.hourly_distribution|tojson|safe }}'),
+        weeklyDistribution: JSON.parse('{{ stats.global_stats.chart_data.weekly_distribution|tojson|safe }}'),
+        monthlyTrend: JSON.parse('{{ stats.global_stats.chart_data.monthly_trend|tojson|safe }}'),
+        userDistribution: JSON.parse('{{ stats.global_stats.chart_data.user_distribution|tojson|safe }}')
+    };
+</script>
+
+<!-- Carga Chart.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
+
+<!-- Luego, el código para crear los gráficos -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const chartConfigs = {
+        hourly: {
+            type: 'bar',
+            data: chartData.hourlyDistribution,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    title: {
+                        display: false
+                    }
+                }
+            }
+        },
+        weekly: {
+            type: 'bar',
+            data: chartData.weeklyDistribution,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                }
+            }
+        },
+        monthly: {
+            type: 'line',
+            data: chartData.monthlyTrend,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                }
+            }
+        },
+        user: {
+            type: 'bar',
+            data: chartData.userDistribution,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    x: {
+                        ticks: {
+                            callback: function(value) {
+                                return this.getLabelForValue(value).substr(0, 15) + '...';
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    };
+
+    // Crear los gráficos
+    new Chart(document.getElementById('hourlyChart'), chartConfigs.hourly);
+    new Chart(document.getElementById('weeklyChart'), chartConfigs.weekly);
+    new Chart(document.getElementById('monthlyChart'), chartConfigs.monthly);
+    new Chart(document.getElementById('userChart'), chartConfigs.user);
+});
+</script>
+{% endblock %}

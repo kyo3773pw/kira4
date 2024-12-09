@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KiraFace - Autenticación Biométrica</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style-inicio.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Jaro:opsz@6..72&display=swap" rel="stylesheet">
+</head>
+<body class="bg-gray-900 min-h-screen">
+    <!-- Navbar -->
+    <nav class="bg-teal-500 p-4 flex justify-between items-center">
+        <div class="flex items-center space-x-2">
+            <div class="w-8 h-8 border-2 border-white flex items-center justify-center rounded">
+                <div class="w-4 h-4 bg-white rounded-sm"></div>
+            </div>
+        </div>
+        <div class="flex space-x-4">
+            <a href="/" class="flex items-center space-x-2 bg-emerald-400 text-white px-4 py-2 rounded hover:bg-emerald-500">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+                </svg>
+                <span>actualizar</span>
+            </a>
+            <a href="{{ url_for('logout')  }}" class="flex items-center space-x-2 bg-emerald-400 text-white px-4 py-2 rounded hover:bg-emerald-500">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/>
+                </svg>
+                <span>Logout</span>
+            </a>
+        </div>
+    </nav>
+
+    <!-- Carousel -->
+    <div class="relative flex-1 bg-gray-800">
+        <div class="carousel">
+            {% for slide in slides %}
+            <div class="carousel-slide {% if loop.index0 == 0 %}active{% endif %}">
+                <img src="{{ url_for('static', filename=slide.image) }}" alt="{{ slide.title }}" class="w-full h-full object-cover">
+                <div class="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center">
+                    <div class="text-left text-white px-4 absolute left-48" style="font-family: 'Jaro', sans-serif;">
+                        <h2 class="text-4xl font-bold mb-4">{{ slide.title }}</h2>
+                        <p class="text-xl max-w-2xl">{{ slide.description }}</p>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <!-- Carousel Controls -->
+        <button class="carousel-control prev">&#10094;</button>
+        <button class="carousel-control next">&#10095;</button>
+        
+        <!-- Carousel Indicators -->
+        <div class="carousel-indicators">
+            {% for slide in slides %}
+            <span class="indicator {% if loop.index0 == 0 %}active{% endif %}"></span>
+            {% endfor %}
+        </div>
+    </div>
+    <script src="{{ url_for('static', filename='js/carusel.js') }}"></script>
+</body>
+</html>

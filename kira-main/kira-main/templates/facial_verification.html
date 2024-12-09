@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verificación Facial</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style-login.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="verification-box">
+            <h2>Verificación Facial</h2>
+            <div class="face-recognition">
+                <video id="input_video" width="320" height="240" autoplay></video>
+                <canvas id="output_canvas" width="320" height="240"></canvas>
+            </div>
+            <button id="capture">Capturar Malla Facial</button>
+            <div id="message"></div>
+        </div>
+    </div>
+
+    <script>
+        const videoElement = document.getElementById('input_video');
+        const canvasElement = document.getElementById('output_canvas');
+        const canvasCtx = canvasElement.getContext('2d');
+        const captureButton = document.getElementById('capture');
+        const messageDiv = document.getElementById('message');
+
+        let currentFaceMesh = null;
+
+        const faceMesh = new FaceMesh({
+            locateFile: (file) => {
+                return `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`;
+            }
+        });
+
+        faceMesh.setOptions({
+            maxNumFaces: 1,
+            refineLandmarks: true,
+            minDetectionConfidence: 0.5,
+            minTrackingConfidence: 0.5
+        });
+
+        faceMesh.onResults(onResults);
+
+        const camera = new Camera(videoElement, {
+            onFrame: async () => {
+                await faceMesh.send({image: videoElement});
+            },
+            width: 320,
+            height: 240
+        });
+
+        camera.start();
+
+        function onResults(results) {
+            canvasCtx.save();
+            canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+            
+            if (results.multiFaceLandmarks) {
+                for (const landmarks of results.multiFaceLandmarks) {
+                    currentFaceMesh = landmarks;
+                    drawConnectors(canvasCtx, landmarks, FACEMESH_TESSELATION, 
+                        {color: '#C0C0C070', lineWidth: 1});
+                    drawConnectors(canvasCtx, landmarks, FACEMESH_RIGHT_EYE, 
+                        {color: '#FF3030'});
+                    drawConnectors(canvasCtx, landmarks, FACEMESH_LEFT_EYE, 
+                        {color: '#30FF30'});
+                }
+            }
+            canvasCtx.restore();
+        }
+
+        captureButton.addEventListener('click', () => {
+            if (!currentFaceMesh) {
+                messageDiv.textContent = "No se detectó una cara. Por favor, asegúrese de que su cara esté visible en la cámara.";
+                return;
+            }
+
+            // Convertir las coordenadas a un formato compatible con el almacenado
+            const meshData = Array.from(currentFaceMesh).map(point => ({
+                x: point.x,
+                y: point.y,
+                z: point.z
+            }));
+
+            // Convertir los datos de la malla a JSON
+            const meshJson = JSON.stringify(meshData);
+
+            // Enviar al servidor para verificación
+            fetch('{{ url_for("facial_verification") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ captured_mesh: meshJson })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    messageDiv.textContent = "Verificación exitosa. Redirigiendo...";
+                    setTimeout(() => {
+                        window.location.href = data.redirect;
+                    }, 2000);
+                } else {
+                    messageDiv.textContent = "Verificación fallida. Por favor, intente de nuevo.";
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                messageDiv.textContent = 'Error de conexión. Por favor, intente más tarde.';
+            });
+        });
+    </script>
+</body>
+</html>
