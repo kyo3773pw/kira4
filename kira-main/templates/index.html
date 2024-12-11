@@ -15,14 +15,13 @@
             <h2 class="user-name">{{ current_user.username }}</h2>
         </div>
         <ul class="menu">
-            <li><a href="#" >Inicio</a></li>
-            <li><a href="{{  url_for('view_login_history')  }}" class="menu-item">historial</a></li>
+            <li><a href="{{ url_for('index') }}" >Inicio</a></li>
+            <li><a href="{{ url_for('view_login_history_detailed') }}" class="menu-item">Ver Historial Detallado</a></li>
             <li><a href="{{ url_for('logout') }}" class="menu-item">Cerrar Sesión</a></li>
         </ul>
     </div>
     <div class="main-content">
         <div class="top-bar">
-            <button class="menu-toggle">☰</button>
             <h2 class="user-name">Bienvenido al sistema de reconocimiento facial</h2>
             <div class="action-buttons">
                 <button onclick="window.location.href='/create_user'">Agregar Usuario</button>

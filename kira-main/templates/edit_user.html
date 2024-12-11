@@ -3,26 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style-editar.css') }}">
     <title>Editar Usuario</title>
 </head>
 <body>
     <div class="sidebar">
         <div class="user-info">
-            <div class="user-avatar"></div>
+            <div class="user-avatar">
+                <img src="../static/images/admin2.png" alt="{{ current_user.username }}'s avatar" class="avatar-image">
+            </div>
             <h2 class="user-name">{{ current_user.username }}</h2>
         </div>
         <ul class="menu">
-            <li><a href="/">Inicio</a></li>
-            <li><a href="#">Configuración</a></li>
-            <li><a href="#">Alarmas</a></li>
-            <li><a href="#">Notificaciones</a></li>
-            <li><a href="{{ url_for('logout') }}">Cerrar Sesión</a></li>
+            <li><a href="#" >Inicio</a></li>
+            <li><a href="{{ url_for('view_login_history_detailed') }}" class="menu-item">Ver Historial Detallado</a></li>
+            <li><a href="{{ url_for('logout') }}" class="menu-item">Cerrar Sesión</a></li>
         </ul>
     </div>
     <div class="main-content">
         <div class="top-bar">
-            <button class="menu-toggle">☰</button>
+            <button onclick="goBack()" class="back-button">
+                <i class="fas fa-arrow-left"></i> Atrás
+            </button>
             <h2 class="user-name">Editar Usuario</h2>
         </div>
         <div class="content-area">
@@ -36,20 +39,19 @@
                 <label for="role">Rol:</label>
                 <select id="role" name="role" required>
                     <option value="admin" {% if role == 'admin' %} selected {% endif %}>Administrador</option>
-                    <option value="coadmin" {% if role == 'coadmin' %} selected {% endif %}>Coadministrador</option>
+                    <!--<option value="coadmin" {% if role == 'coadmin' %} selected {% endif %}>Coadministrador</option>-->
                     <option value="user" {% if role == 'user' %} selected {% endif %}>Usuario</option>
                 </select><br><br>
 
-                <!-- Opción para restablecer la configuración de TOTP -->
-                <div class="form-group">
-                    <label for="reset_totp">Restablecer TOTP:</label>
-                    <input type="checkbox" id="reset_totp" name="reset_totp">
-                    <span>Marcar para restablecer la autenticación TOTP para este usuario.</span>
-                </div><br>
             
                 <button type="submit">Actualizar Usuario</button>
             </form>
         </div>
     </div>
 </body>
+<script>
+    function goBack() {
+        window.history.back();
+    }
+</script>
 </html>

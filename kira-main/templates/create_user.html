@@ -7,10 +7,61 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style-createUser.css') }}">
     <title>Agregar Usuario</title>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"
+        crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <style>
+        .top-bar {
+            width: 78%;
+            /* Barra de ancho completo */
+            background: rgba(0, 0, 0, 0.6);
+            padding: 15px;
+            display: flex;
+            /* Activa Flexbox */
+            align-items: center;
+            /* Centra verticalmente */
+            justify-content: center;
+            /* Centra horizontalmente el contenido */
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+            position: fixed;
+            top: 0;
+            left: 22%;
+            z-index: 1000;
+        }
+
+        .top-bar h2 {
+            font-size: 24px;
+            margin: 0;
+            color: white;
+            /* Asegura que el texto sea visible */
+        }
+
+        .back-button {
+            position: absolute;
+            /* Hace que el botón esté posicionado independientemente */
+            left: 15px;
+            /* Lo mantiene cerca del borde izquierdo */
+            background: none;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            font-size: 16px;
+            color: #ffffff;
+            transition: color 0.3s ease;
+        }
+
+        .back-button:hover {
+            color: #007bff;
+        }
+
+        .back-button i {
+            margin-right: 8px;
+        }
+
         .face-recognition {
             position: relative;
             width: 320px;
@@ -68,55 +119,74 @@
             z-index: 2;
             white-space: nowrap;
         }
+
         .form-group select {
-        width: 100%;
-        padding: 8px;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-        margin-bottom: 10px;
-        font-size: 14px;
-    }
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
 
-    .form-group input[type="tel"] {
-        width: 100%;
-        padding: 8px;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-        font-size: 14px;
-    }
+        .form-group input[type="tel"] {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
 
-    .form-group input[type="tel"]:invalid {
-        border-color: #ff3333;
-    }
+        .form-group input[type="tel"]:invalid {
+            border-color: #ff3333;
+        }
 
-    .form-group input[type="tel"]:valid {
-        border-color: #33cc33;
-    }
-    /* Estilo para el placeholder del teléfono */
-    .form-group input[type="tel"]::placeholder {
-        color: #999;
-        font-size: 12px;
-    }
+        .form-group input[type="tel"]:valid {
+            border-color: #33cc33;
+        }
+
+        /* Estilo para el placeholder del teléfono */
+        .form-group input[type="tel"]::placeholder {
+            color: #999;
+            font-size: 12px;
+        }
+
+        .user-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+
+        .avatar-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
     </style>
 </head>
 
 <body>
+    <!-- Sidebar -->
     <div class="sidebar">
         <div class="user-info">
-            <div class="user-avatar"></div>
+            <div class="user-avatar">
+                <img src="../static/images/admin2.png" alt="{{ current_user.username }}'s avatar" class="avatar-image">
+            </div>
             <h2 class="user-name">{{ current_user.username }}</h2>
         </div>
         <ul class="menu">
-            <li><a href="{{ url_for('index') }}">Inicio</a></li>
-            <li><a href="#">Configuración</a></li>
-            <li><a href="#">Alarmas</a></li>
-            <li><a href="#">Notificaciones</a></li>
-            <li><a href="{{ url_for('logout') }}">Cerrar Sesión</a></li>
+            <li><a href="/">Inicio</a></li>
+            <li><<a href="{{ url_for('view_login_history_detailed') }}" class="menu-item">Ver Historial Detallado</a></li>
+            <li><a href="{{ url_for('logout') }}" class="menu-item">Cerrar Sesión</a></li>
         </ul>
     </div>
     <div class="main-content">
         <div class="top-bar">
-            <button class="menu-toggle">☰</button>
+            <button onclick="goBack()" class="back-button">
+                <i class="fas fa-arrow-left"></i> Atrás
+            </button>
             <h2 class="user-name">Agregar Nuevo Usuario</h2>
         </div>
         <div class="content-area">
@@ -134,10 +204,8 @@
 
                 <div class="form-group">
                     <label for="phone">Número de Celular:</label>
-                    <input type="tel" id="phone" name="phone" 
-                           pattern="[0-9]{9}" 
-                           placeholder="Ejemplo: 987654321" 
-                           required>
+                    <input type="tel" id="phone" name="phone" pattern="[0-9]{9}" placeholder="Ejemplo: 987654321"
+                        required>
                 </div>
 
                 <div class="form-group">
@@ -154,8 +222,7 @@
 
                 <div class="form-group">
                     <label for="security_answer">Respuesta:</label>
-                    <input type="text" id="security_answer" name="respuesta" 
-                    placeholder="Una sola palabra" required>
+                    <input type="text" id="security_answer" name="respuesta" placeholder="Una sola palabra" required>
                 </div>
 
                 <div class="form-group">
@@ -313,6 +380,11 @@
                 }
             }
             canvasCtx.restore();
+        }
+    </script>
+    <script>
+        function goBack() {
+            window.history.back();
         }
     </script>
 </body>

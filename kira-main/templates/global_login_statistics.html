@@ -26,6 +26,12 @@
         height: 300px;
         margin-bottom: 2rem;
     }
+    .insufficient-data-alert {
+        background-color: #ffedd5;
+        border-left: 4px solid #f97316;
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
 </style>
 {% endblock %}
 
@@ -33,6 +39,18 @@
 <div class="container mx-auto px-4 py-8">
     <h1 class="text-3xl font-bold mb-8">Estadísticas Globales de Inicio de Sesión</h1>
 
+    <!-- Alerta de Datos Insuficientes -->
+    {% if stats.global_stats.insufficient_data %}
+    <div class="insufficient-data-alert">
+        <p class="text-orange-600 font-semibold">
+            ⚠️ Advertencia: No hay suficientes datos para generar estadísticas completas
+        </p>
+        <p class="text-sm text-gray-600 mt-2">
+            Se requieren al menos 3 días de datos para generar estadísticas detalladas. 
+            Las estadísticas mostradas son parciales y pueden no representar completamente la actividad.
+        </p>
+    </div>
+    {% endif %}
 
     <!-- Resumen de Estadísticas -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">

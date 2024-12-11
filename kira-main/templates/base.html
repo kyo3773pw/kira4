@@ -14,8 +14,8 @@
             <h2 class="text-center text-lg font-semibold">{{ current_user.username }}</h2>
         </div>
         <ul class="menu mt-4 flex-grow">
-            <li><a href="#" class="block px-4 py-2 hover:bg-gray-700">Inicio</a></li>
-            <li><a href="{{ url_for('view_login_history') }}" class="block px-4 py-2 hover:bg-gray-700">Historial</a></li>
+            <li><a href="{{ url_for('index') }}" class="block px-4 py-2 hover:bg-gray-700">Inicio</a></li>
+            <li><a href="{{ url_for('view_login_history_detailed') }}" class="menu-item">Ver Historial Detallado</a></li>
             <li><a href="{{ url_for('logout') }}" class="block px-4 py-2 hover:bg-gray-700">Cerrar Sesión</a></li>
         </ul>
     </div>

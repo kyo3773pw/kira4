@@ -1,16 +1,18 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login Administrador</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style-login.css') }}">
 </head>
+
 <body>
     <div class="login-container">
         <form id="loginForm" class="login-form">
             <h2>Login Administrador</h2>
-            
+
             <!-- Campo de usuario -->
             <div class="form-group">
                 <input type="text" id="username" name="username" placeholder="Usuario" required>
@@ -23,8 +25,8 @@
 
             <!-- Campo de verificación (inicialmente oculto) -->
             <div class="form-group" id="verificationCodeGroup" style="display: none;">
-                <input type="text" id="verification_code" name="verification_code" 
-                       placeholder="Código de verificación" maxlength="6">
+                <input type="text" id="verification_code" name="verification_code" placeholder="Código de verificación"
+                    maxlength="6">
                 <small>Se ha enviado un código a tu WhatsApp</small>
             </div>
 
@@ -33,21 +35,22 @@
 
             <!-- Botón de submit -->
             <div class="form-group">
+                <button type="button" class="back-button" onclick="history.back()">Volver</button>
                 <button type="submit" class="login-button">Iniciar Sesión</button>
             </div>
         </form>
     </div>
 
     <script>
-        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+        document.getElementById('loginForm').addEventListener('submit', async function (e) {
             e.preventDefault();
-            
+
             // Obtener los valores del formulario
             const formData = new FormData(this);
             const username = formData.get('username');
             const password = formData.get('password');
             const verificationCode = formData.get('verification_code');
-            
+
             try {
                 const response = await fetch('/admin_login', {
                     method: 'POST',
@@ -62,27 +65,27 @@
                 });
 
                 const data = await response.json();
-                
+
                 if (data.success) {
                     if (data.requires_2fa) {
                         // Mostrar el campo de código de verificación
                         document.getElementById('verificationCodeGroup').style.display = 'block';
-                        document.getElementById('statusMessage').innerHTML = 
+                        document.getElementById('statusMessage').innerHTML =
                             '<div class="alert alert-info">' + data.message + '</div>';
                     } else {
                         // Redireccionar si el login fue exitoso
-                        document.getElementById('statusMessage').innerHTML = 
+                        document.getElementById('statusMessage').innerHTML =
                             '<div class="alert alert-success">' + data.message + '</div>';
                         window.location.href = data.redirect;
                     }
                 } else {
                     // Mostrar mensaje de error
-                    document.getElementById('statusMessage').innerHTML = 
+                    document.getElementById('statusMessage').innerHTML =
                         '<div class="alert alert-danger">' + data.message + '</div>';
                 }
             } catch (error) {
                 console.error('Error:', error);
-                document.getElementById('statusMessage').innerHTML = 
+                document.getElementById('statusMessage').innerHTML =
                     '<div class="alert alert-danger">Error en el proceso de login</div>';
             }
         });
@@ -94,19 +97,19 @@
             margin: 10px 0;
             border-radius: 4px;
         }
-        
+
         .alert-success {
             background-color: #d4edda;
             color: #155724;
             border: 1px solid #c3e6cb;
         }
-        
+
         .alert-danger {
             background-color: #f8d7da;
             color: #721c24;
             border: 1px solid #f5c6cb;
         }
-        
+
         .alert-info {
             background-color: #cce5ff;
             color: #004085;
@@ -124,10 +127,16 @@
             padding: 20px;
             background: rgb(8, 11, 41);
             border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
 
         .form-group {
+            display: flex;
+            /* Alinea los botones horizontalmente */
+            justify-content: space-between;
+            /* Espacia los botones */
+            gap: 10px;
+            /* Añade espacio entre los botones */
             margin-bottom: 15px;
         }
 
@@ -139,8 +148,16 @@
             font-size: 16px;
         }
 
+        .login-button,
+        .back-button {
+            padding: 12px;
+            font-size: 16px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
         .login-button {
-            width: 100%;
+            width: 48%;
             padding: 12px;
             background: #4fdbc4;
             color: white;
@@ -154,10 +171,23 @@
             background: #0056b3;
         }
 
+        .back-button {
+            width: 48%;
+            /* El tamaño del botón "Volver" se ajusta */
+            background: #8a9299;
+            color: white;
+            border: none;
+        }
+
+        .back-button:hover {
+            background: #3f4950;
+        }
+
         small {
             color: #666;
             font-size: 12px;
         }
     </style>
 </body>
+
 </html>
