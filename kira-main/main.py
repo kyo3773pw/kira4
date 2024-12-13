@@ -15,6 +15,7 @@ from datetime import datetime, timedelta
 import random
 import secrets
 import pytz
+from collections import defaultdict
 #import face_recognition
 
 app = Flask(__name__)
@@ -230,7 +231,7 @@ def create_user():
                 db.session.commit()
                 
                 flash('Usuario creado correctamente.')
-                return redirect(url_for('login'))
+                return redirect(url_for('index'))
                 
             except Exception as e:
                 db.session.rollback()
@@ -258,13 +259,12 @@ def edit_user(username):
         user.username = request.form['username']
         if request.form['password']:
             user.password = generate_password_hash(request.form['password'])
-        user.role = request.form['role']
 
         db.session.commit()
         flash('Usuario actualizado correctamente.')
         return redirect(url_for('index'))
 
-    return render_template('edit_user.html', username=user.username, role=user.role)
+    return render_template('edit_user.html', username=user.username)
 
 
 @app.route('/delete_user/<username>', methods=['DELETE'])
@@ -333,8 +333,8 @@ def login():
             return jsonify({'success': False, 'message': 'Error en el proceso de inicio de sesión.'})
         
 # Configuración de Twilio
-TWILIO_ACCOUNT_SID = 'ACac0e9cca0354e194ec3c4666573e5ad9' #no me eja subir mis credenciales asi q falta rellenar
-TWILIO_AUTH_TOKEN = 'eec634f708e4f4d42a87a7f981083031' #igual aqui
+TWILIO_ACCOUNT_SID = 'poner algo' #no me eja subir mis credenciales asi q falta rellenar
+TWILIO_AUTH_TOKEN = 'ponr algo' #igual aqui
 #TWILIO_WHATSAPP_NUMBER = '+14155238886'  # Formato: 'whatsapp:+14155238886'
 TWILIO_WHATSAPP_NUMBER = '+14155238886'  # Formato: 'whatsapp:+14155238886'
 

@@ -4,14 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    <title>{% block title %}Sistema de Reconocimiento Facial{% endblock %}</title>
+    <title>Sistema de Reconocimiento Facial</title>
 </head>
 <body class="flex">
     <!-- Sidebar -->
     <div class="sidebar bg-gray-800 text-white w-64 min-h-screen flex flex-col">
-        <div class="user-info p-4">
-            <div class="user-avatar bg-gray-700 rounded-full h-16 w-16 mx-auto mb-2"></div>
-            <h2 class="text-center text-lg font-semibold">{{ current_user.username }}</h2>
+        <div class="user-info">
+            <div class="user-avatar">
+                <img src="../static/images/admin2.png" alt="{{ current_user.username }}'s avatar" class="avatar-image">
+            </div>
+            <h2 class="user-name">{{ current_user.username }}</h2>
         </div>
         <ul class="menu mt-4 flex-grow">
             <li><a href="{{ url_for('index') }}" class="block px-4 py-2 hover:bg-gray-700">Inicio</a></li>

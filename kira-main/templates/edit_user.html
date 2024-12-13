@@ -16,8 +16,8 @@
             <h2 class="user-name">{{ current_user.username }}</h2>
         </div>
         <ul class="menu">
-            <li><a href="#" >Inicio</a></li>
-            <li><a href="{{ url_for('view_login_history_detailed') }}" class="menu-item">Ver Historial Detallado</a></li>
+            <li><a href="{{ url_for('index') }}" >Inicio</a></li>
+            <li><a href="{{ url_for('view_login_history_detailed') }}" class="menu-item">Historial Detallado</a></li>
             <li><a href="{{ url_for('logout') }}" class="menu-item">Cerrar Sesión</a></li>
         </ul>
     </div>
@@ -35,15 +35,6 @@
             
                 <label for="password">Contraseña:</label>
                 <input type="password" id="password" name="password" required><br><br>
-            
-                <label for="role">Rol:</label>
-                <select id="role" name="role" required>
-                    <option value="admin" {% if role == 'admin' %} selected {% endif %}>Administrador</option>
-                    <!--<option value="coadmin" {% if role == 'coadmin' %} selected {% endif %}>Coadministrador</option>-->
-                    <option value="user" {% if role == 'user' %} selected {% endif %}>Usuario</option>
-                </select><br><br>
-
-            
                 <button type="submit">Actualizar Usuario</button>
             </form>
         </div>
